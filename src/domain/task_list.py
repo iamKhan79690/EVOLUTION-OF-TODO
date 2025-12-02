@@ -24,11 +24,13 @@ class TaskList:
         self.next_id: int = 1
         self.max_tasks = max_tasks
 
-    def add_task(self, description: str) -> int:
+    def add_task(self, description: str, priority: str = 'medium', tags: List[str] = None) -> int:
         """Add a new task and return its ID.
 
         Args:
             description: Description of the task to add
+            priority: Priority level for the task (default: 'medium')
+            tags: List of tags for categorizing the task (default: [])
 
         Returns:
             ID of the newly created task
@@ -51,7 +53,7 @@ class TaskList:
             )
 
         task_id = self.next_id
-        task = Task(id=task_id, description=description)
+        task = Task(id=task_id, description=description, priority=priority, tags=tags or [])
         self.tasks[task_id] = task
         self.next_id += 1
 
@@ -128,12 +130,14 @@ class TaskList:
         del self.tasks[task_id]
         return True
 
-    def update_task(self, task_id: int, new_description: str) -> bool:
-        """Update task description (returns success).
+    def update_task(self, task_id: int, new_description: str = None, new_priority: str = None, new_tags: List[str] = None) -> bool:
+        """Update task properties (returns success).
 
         Args:
             task_id: ID of the task to update
-            new_description: New description for the task
+            new_description: New description for the task (optional)
+            new_priority: New priority for the task (optional)
+            new_tags: New list of tags for the task (optional)
 
         Returns:
             True if the task was successfully updated
@@ -145,15 +149,103 @@ class TaskList:
         if task_id not in self.tasks:
             raise TaskNotFound(f"Task with ID {task_id} does not exist")
 
-        if not new_description or not new_description.strip():
-            raise InvalidTaskDescription(
-                "Task description cannot be empty or contain only whitespace"
-            )
+        task = self.tasks[task_id]
 
-        if len(new_description) > 2000:
-            raise InvalidTaskDescription(
-                "Task description must be less than 2000 characters"
-            )
+        if new_description is not None:
+            if not new_description or not new_description.strip():
+                raise InvalidTaskDescription(
+                    "Task description cannot be empty or contain only whitespace"
+                )
 
-        self.tasks[task_id].update_description(new_description)
+            if len(new_description) > 2000:
+                raise InvalidTaskDescription(
+                    "Task description must be less than 2000 characters"
+                )
+
+            task.update_description(new_description)
+
+        if new_priority is not None:
+            task.update_priority(new_priority)
+
+        if new_tags is not None:
+            task.update_tags(new_tags)
+
         return True
+
+    # Search functionality
+    def search_tasks(self, keyword: str) -> List[Task]:
+        """Search tasks by keyword in description (case-insensitive).
+
+        Args:
+            keyword: Keyword to search for in task descriptions
+
+        Returns:
+            List of Task objects that match the keyword
+        """
+        if not keyword:
+            return []
+
+        keyword_lower = keyword.lower()
+        matching_tasks = []
+
+        for task in self.tasks.values():
+            if keyword_lower in task.description.lower():
+                matching_tasks.append(task)
+
+        return matching_tasks
+
+    # Filter functionality
+    def filter_by_priority(self, priority: str) -> List[Task]:
+        """Filter tasks by priority level.
+
+        Args:
+            priority: Priority level to filter by ('high', 'medium', 'low')
+
+        Returns:
+            List of Task objects with the specified priority
+        """
+        valid_priorities = ['high', 'medium', 'low']
+        if priority not in valid_priorities:
+            raise ValueError(f"Priority must be one of: {', '.join(valid_priorities)}")
+
+        return [task for task in self.tasks.values() if task.priority == priority]
+
+    def filter_by_tag(self, tag: str) -> List[Task]:
+        """Filter tasks by a specific tag.
+
+        Args:
+            tag: Tag to filter by
+
+        Returns:
+            List of Task objects that have the specified tag
+        """
+        return [task for task in self.tasks.values() if tag in task.tags]
+
+    def filter_by_status(self, is_completed: bool) -> List[Task]:
+        """Filter tasks by status.
+
+        Args:
+            is_completed: If True, return completed tasks; if False, return pending tasks
+
+        Returns:
+            List of Task objects with the specified status
+        """
+        return [task for task in self.tasks.values() if task.is_completed == is_completed]
+
+    # Sort functionality
+    def sort_by_priority(self) -> List[Task]:
+        """Sort tasks by priority (high -> medium -> low).
+
+        Returns:
+            List of Task objects sorted by priority
+        """
+        priority_order = {'high': 0, 'medium': 1, 'low': 2}
+        return sorted(self.tasks.values(), key=lambda task: priority_order[task.priority])
+
+    def sort_by_title(self) -> List[Task]:
+        """Sort tasks by title/description alphabetically.
+
+        Returns:
+            List of Task objects sorted by description
+        """
+        return sorted(self.tasks.values(), key=lambda task: task.description.lower())
