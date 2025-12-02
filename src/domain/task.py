@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
 
 @dataclass
@@ -14,12 +14,20 @@ class Task:
         description: Human-readable description of the task
         is_completed: Completion status (default: False)
         created_at: Timestamp when task was created
+        priority: Priority level (high, medium, low) with default 'medium'
+        tags: List of tags for categorizing the task
+        updated_at: Timestamp when task was last modified
+        completed_at: Timestamp when task was completed (if applicable)
     """
 
     id: int
     description: str
     is_completed: bool = False
     created_at: Optional[datetime] = None
+    priority: str = 'medium'
+    tags: List[str] = None
+    updated_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
 
     def __post_init__(self) -> None:
         """Validate the task after initialization."""
@@ -34,13 +42,33 @@ class Task:
         if self.created_at is None:
             self.created_at = datetime.now()
 
+        if self.tags is None:
+            self.tags = []
+
+        # Validate priority
+        valid_priorities = ['high', 'medium', 'low']
+        if self.priority not in valid_priorities:
+            raise ValueError(f"Priority must be one of: {', '.join(valid_priorities)}")
+
+        # Validate tags
+        for tag in self.tags:
+            if not (1 <= len(tag) <= 50):
+                raise ValueError(f"Each tag must be 1-50 characters: '{tag}'")
+            if not tag.replace('-', '').replace('_', '').isalnum():
+                raise ValueError(f"Tag '{tag}' contains invalid characters. Only alphanumeric, hyphens, and underscores allowed.")
+
+        if len(self.tags) > 10:
+            raise ValueError("Maximum 10 tags allowed per task")
+
     def complete(self) -> None:
         """Mark the task as complete."""
         self.is_completed = True
+        self.completed_at = datetime.now()
 
     def reopen(self) -> None:
         """Mark the task as incomplete."""
         self.is_completed = False
+        self.completed_at = None
 
     def update_description(self, new_description: str) -> None:
         """Update the task description after validation.
@@ -60,3 +88,71 @@ class Task:
             raise ValueError("Task description must be less than 2000 characters")
 
         self.description = new_description
+        self.updated_at = datetime.now()
+
+    def update_priority(self, new_priority: str) -> None:
+        """Update the task priority after validation.
+
+        Args:
+            new_priority: New priority for the task (high, medium, or low)
+
+        Raises:
+            ValueError: If the priority is invalid
+        """
+        valid_priorities = ['high', 'medium', 'low']
+        if new_priority not in valid_priorities:
+            raise ValueError(f"Priority must be one of: {', '.join(valid_priorities)}")
+
+        self.priority = new_priority
+        self.updated_at = datetime.now()
+
+    def add_tag(self, tag: str) -> None:
+        """Add a tag to the task after validation.
+
+        Args:
+            tag: Tag to add to the task
+
+        Raises:
+            ValueError: If the tag is invalid
+        """
+        if not (1 <= len(tag) <= 50):
+            raise ValueError(f"Tag must be 1-50 characters: '{tag}'")
+        if not tag.replace('-', '').replace('_', '').isalnum():
+            raise ValueError(f"Tag '{tag}' contains invalid characters. Only alphanumeric, hyphens, and underscores allowed.")
+        if len(self.tags) >= 10:
+            raise ValueError("Maximum 10 tags allowed per task")
+        if tag not in self.tags:
+            self.tags.append(tag)
+
+        self.updated_at = datetime.now()
+
+    def remove_tag(self, tag: str) -> None:
+        """Remove a tag from the task.
+
+        Args:
+            tag: Tag to remove from the task
+        """
+        if tag in self.tags:
+            self.tags.remove(tag)
+            self.updated_at = datetime.now()
+
+    def update_tags(self, new_tags: List[str]) -> None:
+        """Update the task tags after validation.
+
+        Args:
+            new_tags: New list of tags for the task
+
+        Raises:
+            ValueError: If any of the tags are invalid
+        """
+        for tag in new_tags:
+            if not (1 <= len(tag) <= 50):
+                raise ValueError(f"Tag must be 1-50 characters: '{tag}'")
+            if not tag.replace('-', '').replace('_', '').isalnum():
+                raise ValueError(f"Tag '{tag}' contains invalid characters. Only alphanumeric, hyphens, and underscores allowed.")
+
+        if len(new_tags) > 10:
+            raise ValueError("Maximum 10 tags allowed per task")
+
+        self.tags = new_tags
+        self.updated_at = datetime.now()

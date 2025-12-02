@@ -57,7 +57,10 @@ This is the foundational phase of the Evolution of Todo project, implementing a 
 /specs
 ├── features/          # Feature specifications
 │   ├── task-crud.md
-│   ├── task-filtering.md
+│   ├── task-priorities.md
+│   ├── task-tags-categories.md
+│   ├── task-search-filter.md
+│   ├── task-sorting.md
 │   └── ...
 ├── architecture/      # Architecture decision records
 │   ├── domain-model.md
@@ -174,6 +177,11 @@ evolution-of-todo-phase-1/
 ├── uv.lock                  # Dependency lock file
 ├── specs/                   # Specification files
 │   ├── features/
+│   │   ├── task-crud.md
+│   │   ├── task-priorities.md
+│   │   ├── task-tags-categories.md
+│   │   ├── task-search-filter.md
+│   │   └── task-sorting.md
 │   ├── architecture/
 │   └── api/
 ├── src/                     # Source code
@@ -188,6 +196,47 @@ evolution-of-todo-phase-1/
     ├── test_services/
     └── test_integration/
 ```
+
+---
+
+## Feature Roadmap - Phase I
+
+### Core Features (Foundation)
+
+1. **Task CRUD Operations** (`/specs/features/task-crud.md`)
+   - Create, Read, Update, Delete tasks
+   - Basic task properties: title, description, status, due date
+
+### Intermediate Features (Organization & Usability)
+
+2. **Task Priorities** (`/specs/features/task-priorities.md`)
+   - Assign priority levels: High, Medium, Low
+   - Visual indicators for priority levels
+   - Filter and sort by priority
+
+3. **Tags & Categories** (`/specs/features/task-tags-categories.md`)
+   - Assign multiple tags/categories to tasks (e.g., work, home, personal)
+   - Manage tag lifecycle (create, rename, delete)
+   - Filter tasks by tags/categories
+
+4. **Search & Filter** (`/specs/features/task-search-filter.md`)
+   - Search tasks by keyword (title, description)
+   - Filter by: status, priority, due date, tags
+   - Combine multiple filters
+   - Case-insensitive search
+
+5. **Task Sorting** (`/specs/features/task-sorting.md`)
+   - Sort by: due date, priority, creation date, alphabetically
+   - Ascending/descending order
+   - Preserve sort preferences within session
+
+### Advanced Features (Future Consideration)
+
+- Subtasks and task dependencies
+- Recurring tasks
+- Task history/audit log
+- Bulk operations
+- Export/import (for future phases)
 
 ---
 
@@ -268,6 +317,40 @@ These constraints will be relaxed in future phases.
 
 ---
 
+## Domain Model - Core Entities
+
+### Task Entity
+
+The central entity in Phase I with the following properties:
+
+**Required Properties:**
+- `id`: Unique identifier (UUID or auto-increment)
+- `title`: Task title (string, max 200 chars)
+- `status`: Task status (enum: pending, in_progress, completed)
+- `created_at`: Timestamp of creation
+
+**Optional Properties:**
+- `description`: Detailed description (string, max 1000 chars)
+- `due_date`: Due date (datetime, optional)
+- `priority`: Priority level (enum: high, medium, low)
+- `tags`: List of tags/categories (list of strings)
+- `completed_at`: Timestamp when marked complete (optional)
+- `updated_at`: Timestamp of last update
+
+### Priority Levels
+
+- **HIGH:** Urgent and important tasks
+- **MEDIUM:** Standard priority (default)
+- **LOW:** Nice-to-have tasks
+
+### Task Status
+
+- **PENDING:** Not yet started (default)
+- **IN_PROGRESS:** Currently being worked on
+- **COMPLETED:** Task finished
+
+---
+
 ## Communication Protocol
 
 ### When Claude Needs Clarification
@@ -293,16 +376,20 @@ Human may:
 Phase I is considered complete when:
 
 1. ✅ All feature specs in `/specs/features/` are implemented
-2. ✅ All tests pass with >80% coverage
-3. ✅ Console application runs without errors
-4. ✅ Code passes all linting and formatting checks
-5. ✅ Documentation is complete and accurate
-6. ✅ Ready for transition to Phase II (persistence layer)
+2. ✅ Core features: Task CRUD operations working
+3. ✅ Intermediate features: Priorities, tags, search/filter, sorting working
+4. ✅ All tests pass with >80% coverage
+5. ✅ Console application runs without errors
+6. ✅ Code passes all linting and formatting checks
+7. ✅ Documentation is complete and accurate
+8. ✅ User can manage tasks efficiently with search, filter, and sort capabilities
+9. ✅ Ready for transition to Phase II (persistence layer)
 
 ---
 
 ## Version History
 
+- **v1.1.0** - Added intermediate features: priorities, tags/categories, search/filter, sorting
 - **v1.0.0** - Initial constitution for Phase I (In-Memory Python Console App)
 
 ---

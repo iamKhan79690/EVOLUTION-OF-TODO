@@ -19,8 +19,17 @@ def format_task_list(tasks: List[Task]) -> str:
 
     formatted_tasks = []
     for task in tasks:
-        status = "✓" if task.is_completed else "○"
-        formatted_tasks.append(f"{status} [{task.id}] {task.description}")
+        status = "[x]" if task.is_completed else "[ ]"
+        priority = f"({task.priority.capitalize()})" if task.priority else ""
+        tags = f"[{', '.join(task.tags)}]" if task.tags else ""
+
+        task_parts = [status, f"{task.id}. {task.description}"]
+        if priority:
+            task_parts.insert(1, priority)
+        if tags:
+            task_parts.append(tags)
+
+        formatted_tasks.append(" ".join(task_parts))
 
     return "\n".join(formatted_tasks)
 
@@ -35,5 +44,14 @@ def format_task(task: Task) -> str:
     Returns:
         Formatted string representation of the task
     """
-    status = "✓" if task.is_completed else "○"
-    return f"{status} [{task.id}] {task.description}"
+    status = "[x]" if task.is_completed else "[ ]"
+    priority = f"({task.priority.capitalize()})" if task.priority else ""
+    tags = f"[{', '.join(task.tags)}]" if task.tags else ""
+
+    task_parts = [status, f"{task.id}. {task.description}"]
+    if priority:
+        task_parts.insert(1, priority)
+    if tags:
+        task_parts.append(tags)
+
+    return " ".join(task_parts)
