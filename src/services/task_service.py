@@ -1,10 +1,12 @@
 """Task service implementing business logic for task operations."""
 
+from datetime import datetime
 from typing import List, Optional, Dict, Any
+from uuid import uuid4
 from ..domain.task import Task
 from ..domain.task_list import TaskList
 from ..domain.errors import TaskNotFound, InvalidTaskDescription, TaskLimitExceeded
-from .validation import validate_task_description, validate_task_id, validate_task_limit
+from .validation import validate_task_description, validate_task_id, validate_task_limit, validate_due_date, validate_recurrence_rule, validate_reminder_settings
 
 
 class TaskService:
@@ -22,7 +24,8 @@ class TaskService:
         """
         self.task_list = task_list or TaskList()
 
-    def create_task(self, title: str, description: str = "", priority: str = "medium", tags: List[str] = None) -> Task:
+    def create_task(self, title: str, description: str = "", priority: str = "medium", tags: List[str] = None,
+                    due_date = None, recurrence_rule = None, reminder = None) -> Task:
         """Create a new task with validation.
 
         Args:
@@ -30,6 +33,9 @@ class TaskService:
             description: Description of the new task (optional)
             priority: Priority level (high, medium, low) with default 'medium'
             tags: List of tags to categorize the task (optional)
+            due_date: When the task is due (optional)
+            recurrence_rule: Recurrence pattern for the task (optional)
+            reminder: Reminder configuration for the task (optional)
 
         Returns:
             The created Task object
@@ -37,6 +43,7 @@ class TaskService:
         Raises:
             InvalidTaskDescription: If the description is invalid
             TaskLimitExceeded: If the task limit would be exceeded
+            ValueError: If due_date, recurrence_rule, or reminder are invalid
         """
         # Use title as description for compatibility with existing code
         full_description = title
@@ -51,7 +58,33 @@ class TaskService:
         if validation_result is not True:
             raise TaskLimitExceeded(validation_result)
 
-        task_id = self.task_list.add_task(full_description, priority, tags)
+        # Validate due date if provided
+        if due_date:
+            validation_result = validate_due_date(due_date)
+            if validation_result is not True:
+                raise ValueError(f"Invalid due date: {validation_result}")
+
+        # Validate recurrence rule if provided
+        if recurrence_rule:
+            validation_result = validate_recurrence_rule(recurrence_rule)
+            if validation_result is not True:
+                raise ValueError(f"Invalid recurrence rule: {validation_result}")
+
+        # Validate reminder settings if provided
+        if reminder:
+            validation_result = validate_reminder_settings(reminder)
+            if validation_result is not True:
+                raise ValueError(f"Invalid reminder settings: {validation_result}")
+
+        # Check if the recurrence rule exists without a due date
+        if recurrence_rule and not due_date:
+            raise ValueError("Due date is required when setting a recurrence rule")
+
+        task_id = self.task_list.add_task(
+            full_description, priority, tags,
+            due_date, recurrence_rule,
+            reminder
+        )
         return self.task_list.get_task(task_id)
 
     def get_task(self, task_id: int) -> Task:
@@ -158,7 +191,8 @@ class TaskService:
         except TaskNotFound:
             return False
 
-    def update_task(self, task_id: int, title: str = None, description: str = None, status: str = None, priority: str = None, tags: List[str] = None) -> Task:
+    def update_task(self, task_id: int, title: str = None, description: str = None, status: str = None, priority: str = None, tags: List[str] = None,
+                    due_date = None, recurrence_rule = None, reminder_settings = None) -> Task:
         """Update a task with new properties.
 
         Args:
@@ -168,6 +202,9 @@ class TaskService:
             status: New status for the task (pending, completed, in_progress) (optional)
             priority: New priority for the task (high, medium, low) (optional)
             tags: New tags for the task (optional)
+            due_date: New due date for the task (optional)
+            recurrence_rule: New recurrence pattern for the task (optional)
+            reminder_settings: New reminder configuration for the task (optional)
 
         Returns:
             The updated Task object
@@ -180,6 +217,28 @@ class TaskService:
         validation_result = validate_task_id(task_id)
         if validation_result is not True:
             raise ValueError(validation_result)
+
+        # Validate due date if provided
+        if due_date:
+            validation_result = validate_due_date(due_date)
+            if validation_result is not True:
+                raise ValueError(f"Invalid due date: {validation_result}")
+
+        # Validate recurrence rule if provided
+        if recurrence_rule:
+            validation_result = validate_recurrence_rule(recurrence_rule)
+            if validation_result is not True:
+                raise ValueError(f"Invalid recurrence rule: {validation_result}")
+
+        # Validate reminder settings if provided
+        if reminder_settings:
+            validation_result = validate_reminder_settings(reminder_settings)
+            if validation_result is not True:
+                raise ValueError(f"Invalid reminder settings: {validation_result}")
+
+        # Check if the recurrence rule is provided without a due date
+        if recurrence_rule and not due_date:
+            raise ValueError("Due date is required when updating to a recurrence rule")
 
         # Prepare update parameters
         new_description = None
@@ -208,11 +267,20 @@ class TaskService:
             if priority not in valid_priorities:
                 raise ValueError(f"Priority must be one of: {', '.join(valid_priorities)}")
 
-        self.task_list.update_task(task_id, new_description, priority, tags)
+        # Perform basic updates to the task
+        self.task_list.update_task(task_id, new_description, priority, tags, due_date)
+
+        # Update task with new fields specifically
+        task = self.task_list.get_task(task_id)
+        if due_date is not None:
+            task.update_due_date(due_date)
+        if recurrence_rule is not None:
+            task.recurrence_rule = recurrence_rule
+        if reminder_settings is not None:
+            task.reminder = reminder_settings
 
         # Update status if specified
         if status is not None:
-            task = self.task_list.get_task(task_id)
             if status == 'completed':
                 task.complete()
             elif status == 'pending':

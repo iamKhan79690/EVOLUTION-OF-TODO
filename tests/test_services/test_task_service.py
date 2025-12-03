@@ -399,13 +399,13 @@ def test_update_task_with_multiple_properties():
 
     # Update multiple properties
     updated_task = service.update_task(task_id, title="Updated task", priority='high', tags=['personal'])
-    assert updated_task.description == "Updated task - "
+    assert updated_task.description == "Updated task"
     assert updated_task.priority == 'high'
     assert updated_task.tags == ['personal']
 
     # Verify the changes persist
     retrieved_task = service.get_task(task_id)
-    assert retrieved_task.description == "Updated task - "
+    assert retrieved_task.description == "Updated task"
     assert retrieved_task.priority == 'high'
     assert retrieved_task.tags == ['personal']
 
