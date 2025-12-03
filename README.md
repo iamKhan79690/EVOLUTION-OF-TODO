@@ -89,84 +89,12 @@ The application provides a comprehensive menu-based interface:
 └─────────────────────────────────────┘
 ```
 
-### 📝 Adding Tasks with New Features
-
-The enhanced task creation system allows you to build comprehensive, intelligent tasks with multiple attributes. When adding a new task through the "Add Task" menu option, you'll be guided through each feature:
-
-#### 🎯 **Priority Levels**
-Choose from three priority levels to organize your tasks by importance:
-- **🔴 High** - Urgent tasks that need immediate attention
-- **🟡 Medium** - Important tasks with moderate urgency
-- **🟢 Low** - Tasks that can be completed when time permits
-
-*Priority levels affect task sorting and help you focus on what matters most.*
-
-#### 🏷️ **Tagging System**
-Create custom tags to categorize and organize your tasks:
-- **Multiple Tags**: Assign any number of tags to a single task
-- **Custom Categories**: Create tags like `work`, `personal`, `urgent`, `project-alpha`, `meeting`, etc.
-- **Flexible Organization**: Tags help you filter and group related tasks
-- **Search Enhancement**: Tags are included in keyword searches
-
-*Example Tags: `work`, `home`, `shopping`, `health`, `learning`, `bills`, `creative`*
-
-#### ⏰ **Due Dates & Reminders**
-Set specific deadlines and intelligent reminders:
-- **Date & Time**: Specify exact due dates and times (e.g., "2025-12-25 14:30")
-- **Flexible Formats**: Natural language support for date input
-- **Reminder Scheduling**: Set advance reminders (15 min, 1 hour, 1 day before)
-- **Visual Indicators**: Overdue tasks are clearly marked in the task list
-
-*Due dates help you track deadlines and manage time-sensitive commitments.*
-
-#### 🔄 **Recurring Tasks**
-Automate repetitive tasks with powerful recurrence patterns:
-
-**Available Patterns:**
-- **📅 Daily**: Every day at the specified time
-- **📆 Weekly**: Every week on the same day/time
-- **🗓️ Monthly**: Every month on the same date/time
-- **📋 Yearly**: Every year on the same date/time
-
-**Smart Features:**
-- **Auto-Rescheduling**: Completed recurring tasks automatically create the next occurrence
-- **Skip Overdue**: If you miss a recurring task, it schedules the next upcoming date
-- **Independent Tracking**: Each occurrence is tracked separately for completion
-- **Perfect For**: Daily habits, weekly meetings, monthly bills, yearly events
-
-**Example Use Cases:**
-- `Daily standup meeting` - Every weekday at 9:00 AM
-- `Weekly team sync` - Every Monday at 2:00 PM
-- `Monthly rent payment` - 1st of every month
-- `Annual insurance renewal` - Every year on your policy renewal date
-
-#### 🎨 **Task Creation Workflow**
-
-When you select "Add Task" from the main menu, the application will:
-
-1. **📝 Task Title** - Enter a clear, descriptive title
-2. **🎯 Priority** - Choose High/Medium/Low priority level
-3. **🏷️ Tags** - Add one or more custom tags (comma-separated)
-4. **⏰ Due Date** - Set deadline (optional, format: YYYY-MM-DD HH:MM)
-5. **🔄 Recurrence** - Choose recurrence pattern (optional)
-6. **✅ Confirm** - Review and save your task
-
-#### 💡 **Pro Tips**
-
-- **Descriptive Titles**: Use clear, action-oriented titles (e.g., "Review Q4 financial report" instead of "report")
-- **Tag Strategy**: Develop a consistent tagging system for better organization
-- **Realistic Due Dates**: Set achievable deadlines to avoid task overload
-- **Strategic Priorities**: Reserve High priority for truly urgent items
-- **Leverage Recurrence**: Convert repetitive manual tasks into automated recurring ones
-
-#### 📊 **Task Display**
-
-Once created, your tasks appear in the task list with:
-- **Priority Indicators**: Color-coded priority badges (🔴🟡🟢)
-- **Tag Display**: All assigned tags shown as colored chips
-- **Due Status**: Clear "DUE: [date]" or "OVERDUE" indicators
-- **Recurring Badge**: 🔄 icon for recurring tasks
-- **Completion Status**: ✅ for completed, ◻️ for pending tasks
+### Adding Tasks with New Features
+When creating tasks, you can now specify:
+- **Priority**: High, Medium, or Low priority levels
+- **Tags**: Multiple tags for categorization (e.g., work, personal, urgent)
+- **Due Dates**: Specific date/time deadlines with reminder options
+- **Recurrence**: Set recurring patterns for routine tasks
 
 ### Search & Filter Menu
 ```
