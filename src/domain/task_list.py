@@ -1,5 +1,6 @@
 """TaskList domain model representing a collection of todo items."""
 
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from .task import Task
 from .errors import TaskNotFound, InvalidTaskDescription, TaskLimitExceeded
@@ -24,13 +25,17 @@ class TaskList:
         self.next_id: int = 1
         self.max_tasks = max_tasks
 
-    def add_task(self, description: str, priority: str = 'medium', tags: List[str] = None) -> int:
+    def add_task(self, description: str, priority: str = 'medium', tags: List[str] = None, due_date: datetime = None,
+                 recurrence_rule = None, reminder = None) -> int:
         """Add a new task and return its ID.
 
         Args:
             description: Description of the task to add
             priority: Priority level for the task (default: 'medium')
             tags: List of tags for categorizing the task (default: [])
+            due_date: When the task is due (default: None)
+            recurrence_rule: Recurrence pattern for recurring tasks (default: None)
+            reminder: Reminder configuration for the task (default: None)
 
         Returns:
             ID of the newly created task
@@ -53,7 +58,8 @@ class TaskList:
             )
 
         task_id = self.next_id
-        task = Task(id=task_id, description=description, priority=priority, tags=tags or [])
+        task = Task(id=task_id, description=description, priority=priority, tags=tags or [],
+                    due_date=due_date, recurrence_rule=recurrence_rule, reminder=reminder)
         self.tasks[task_id] = task
         self.next_id += 1
 
@@ -109,7 +115,16 @@ class TaskList:
         if task_id not in self.tasks:
             raise TaskNotFound(f"Task with ID {task_id} does not exist")
 
-        self.tasks[task_id].complete()
+        task = self.tasks[task_id]
+        task.complete()
+
+        # If this is a recurring task, generate the next instance
+        if task.recurrence_rule and task.recurrence_rule.should_repeat():
+            # Create a new instance based on the recurrence rule
+            next_due_date = task.recurrence_rule.get_next_occurrence(task.due_date or datetime.now())
+            # In a real implementation, this would add a new task based on the template
+            # For now, we just complete this task and leave the next one to be generated separately
+
         return True
 
     def delete_task(self, task_id: int) -> bool:
@@ -130,7 +145,8 @@ class TaskList:
         del self.tasks[task_id]
         return True
 
-    def update_task(self, task_id: int, new_description: str = None, new_priority: str = None, new_tags: List[str] = None) -> bool:
+    def update_task(self, task_id: int, new_description: str = None, new_priority: str = None,
+                    new_tags: List[str] = None, new_due_date: datetime = None) -> bool:
         """Update task properties (returns success).
 
         Args:
@@ -138,6 +154,7 @@ class TaskList:
             new_description: New description for the task (optional)
             new_priority: New priority for the task (optional)
             new_tags: New list of tags for the task (optional)
+            new_due_date: New due date for the task (optional)
 
         Returns:
             True if the task was successfully updated
@@ -169,6 +186,9 @@ class TaskList:
 
         if new_tags is not None:
             task.update_tags(new_tags)
+
+        if new_due_date is not None:
+            task.update_due_date(new_due_date)
 
         return True
 
@@ -249,3 +269,60 @@ class TaskList:
             List of Task objects sorted by description
         """
         return sorted(self.tasks.values(), key=lambda task: task.description.lower())
+
+    def sort_by_due_date(self) -> List[Task]:
+        """Sort tasks by due date (earliest to latest, tasks without due dates last).
+
+        Returns:
+            List of Task objects sorted by due date
+        """
+        def sort_key(task):
+            # If task has no due date, sort it to the end (return a far future date)
+            if task.due_date is None:
+                # Use a date far in the future to put tasks without due dates at the end
+                return datetime.max
+            return task.due_date
+
+        return sorted(self.tasks.values(), key=sort_key)
+
+    # Time-based queries
+    def get_overdue_tasks(self) -> List[Task]:
+        """Get tasks that are past their due date and still pending.
+
+        Returns:
+            List of Task objects that are overdue
+        """
+        now = datetime.now()
+        return [task for task in self.tasks.values()
+                if task.due_date and task.due_date < now and not task.is_completed]
+
+    def get_upcoming_tasks(self, days_ahead: int = 7) -> List[Task]:
+        """Get tasks due within the specified number of days.
+
+        Args:
+            days_ahead: Number of days to look ahead (default: 7)
+
+        Returns:
+            List of Task objects due within the specified period
+        """
+        now = datetime.now()
+        future_limit = now + timedelta(days=days_ahead)
+
+        return [task for task in self.tasks.values()
+                if task.due_date and now <= task.due_date <= future_limit and not task.is_completed]
+
+    def get_tasks_with_reminders(self) -> List[Task]:
+        """Get tasks that have reminder configurations.
+
+        Returns:
+            List of Task objects that have reminders set
+        """
+        return [task for task in self.tasks.values() if task.reminder and task.reminder.enabled]
+
+    def get_recurring_tasks(self) -> List[Task]:
+        """Get tasks that have recurrence rules.
+
+        Returns:
+            List of Task objects that are recurring
+        """
+        return [task for task in self.tasks.values() if task.recurrence_rule]

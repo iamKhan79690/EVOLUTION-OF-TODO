@@ -108,9 +108,125 @@ class TodoCLI:
                 # Split tags and clean them up
                 tags = [tag.strip() for tag in tags_input.split(",") if tag.strip()]
 
-            task = self.task_service.create_task(title, description, priority, tags)
+            # Get due date
+            from datetime import datetime
+            due_date_input = input("Enter due date (YYYY-MM-DD HH:MM, optional, press Enter to skip): ").strip()
+            due_date = None
+            if due_date_input:
+                try:
+                    due_date = datetime.strptime(due_date_input, "%Y-%m-%d %H:%M")
+                except ValueError:
+                    print("Invalid date format. Expected YYYY-MM-DD HH:MM. Proceeding without due date.")
+                    due_date = None
+
+            # Ask if this should be a recurring task
+            is_recurring = input("Is this a recurring task? (y/n, default n): ").strip().lower() in ['y', 'yes']
+            recurrence_rule = None
+            if is_recurring:
+                print("Select recurrence frequency:")
+                print("1. Daily")
+                print("2. Weekly")
+                print("3. Monthly")
+                print("4. Yearly")
+                recurrence_choice = input("Enter choice (1-4): ").strip()
+
+                from src.domain.recurrence_rule import Frequency, EndCondition, RecurrenceRule
+                frequency_map = {"1": Frequency.DAILY, "2": Frequency.WEEKLY, "3": Frequency.MONTHLY, "4": Frequency.YEARLY}
+                if recurrence_choice in frequency_map:
+                    frequency = frequency_map[recurrence_choice]
+
+                    # Get recurrence interval
+                    try:
+                        interval = int(input("Enter interval (e.g., every N days/weeks/etc., default 1): ").strip() or "1")
+                    except ValueError:
+                        interval = 1
+
+                    # For weekly, get days of week
+                    days_of_week = []
+                    if frequency == Frequency.WEEKLY:
+                        print("Enter days of week (comma-separated, e.g., mon,tue,wed): ")
+                        days_input = input().strip().lower()
+                        if days_input:
+                            days_of_week = [d.strip() for d in days_input.split(",")]
+
+                    # For monthly, get day of month
+                    day_of_month = None
+                    if frequency == Frequency.MONTHLY:
+                        day_input = input("Enter day of month (1-31, default 1): ").strip()
+                        if day_input:
+                            try:
+                                day_of_month = int(day_input)
+                            except ValueError:
+                                day_of_month = 1
+
+                    # Get end condition
+                    print("Select end condition:")
+                    print("1. Never (default)")
+                    print("2. After N occurrences")
+                    print("3. On specific date")
+                    end_choice = input("Enter choice (1-3, default 1): ").strip()
+
+                    end_condition = EndCondition.NEVER
+                    end_count = None
+                    end_date = None
+                    if end_choice == "2":
+                        end_condition = EndCondition.AFTER_OCCURRENCES
+                        try:
+                            end_count = int(input("Enter number of occurrences: ").strip())
+                        except ValueError:
+                            end_count = 1
+                    elif end_choice == "3":
+                        end_condition = EndCondition.ON_DATE
+                        end_date_input = input("Enter end date (YYYY-MM-DD): ").strip()
+                        if end_date_input:
+                            try:
+                                from datetime import date
+                                end_date = datetime.strptime(end_date_input, "%Y-%m-%d").date()
+                            except ValueError:
+                                print("Invalid date format. Defaulting to no end date.")
+                                end_date = None
+
+                    # Create the recurrence rule
+                    recurrence_rule = RecurrenceRule(
+                        id=f"rr_{len(self.task_service.task_list.tasks) + 1}",
+                        frequency=frequency,
+                        interval=interval,
+                        days_of_week=days_of_week,
+                        day_of_month=day_of_month,
+                        end_condition=end_condition,
+                        end_count=end_count,
+                        end_date=end_date
+                    )
+
+            # Ask if user wants to set reminders
+            set_reminder = input("Set reminder for this task? (y/n, default n): ").strip().lower() in ['y', 'yes']
+            reminder_settings = None
+            if set_reminder and due_date:
+                from src.domain.reminder import Reminder
+                reminder_times_input = input("Enter reminder times in minutes before due date (comma-separated, e.g., 30,60,1440): ").strip()
+                reminder_times = []
+                if reminder_times_input:
+                    try:
+                        reminder_times = [int(t.strip()) for t in reminder_times_input.split(",")]
+                    except ValueError:
+                        print("Invalid reminder times format. Using no reminders.")
+
+                reminder_settings = Reminder(
+                    id=f"rem_{len(self.task_service.task_list.tasks) + 1}",
+                    task_id="",  # Will be set later when task is created
+                    enabled=True,
+                    reminder_times=reminder_times
+                )
+
+            task = self.task_service.create_task(title, description, priority, tags, due_date, recurrence_rule, reminder_settings)
             print(f"Task added with ID: {task.id}")
             print(f"Priority: {task.priority}, Tags: {task.tags}")
+            if task.due_date:
+                print(f"Due date: {task.due_date.strftime('%Y-%m-%d %H:%M')}")
+            if task.recurrence_rule:
+                print(f"Recurrence: {task.recurrence_rule.frequency.value} every {task.recurrence_rule.interval} {task.recurrence_rule.frequency.value}(s)")
+            if task.reminder:
+                print(f"Reminders: {task.reminder.reminder_times} minutes before due")
         except Exception as e:
             print(f"Error adding task: {e}")
 

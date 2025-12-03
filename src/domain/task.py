@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 from typing import List, Optional
+from .recurrence_rule import RecurrenceRule
+from .reminder import Reminder
 
 
 @dataclass
@@ -18,6 +20,10 @@ class Task:
         tags: List of tags for categorizing the task
         updated_at: Timestamp when task was last modified
         completed_at: Timestamp when task was completed (if applicable)
+        due_date: When the task is due (with time precision)
+        notification_sent: Whether a notification has been sent for this task
+        recurrence_rule: Defines recurrence pattern for recurring tasks
+        reminder: Reminder configuration for the task
     """
 
     id: int
@@ -28,6 +34,10 @@ class Task:
     tags: List[str] = None
     updated_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
+    due_date: Optional[datetime] = None
+    notification_sent: bool = False
+    recurrence_rule: Optional[RecurrenceRule] = None
+    reminder: Optional[Reminder] = None
 
     def __post_init__(self) -> None:
         """Validate the task after initialization."""
@@ -59,6 +69,14 @@ class Task:
 
         if len(self.tags) > 10:
             raise ValueError("Maximum 10 tags allowed per task")
+
+        # Validate due date is in the future if provided
+        if self.due_date and self.due_date < datetime.now():
+            raise ValueError("Due date must be in the future")
+
+        # Validate recurrence rule
+        if self.recurrence_rule and not self.due_date:
+            raise ValueError("Due date is required when recurrence rule is set")
 
     def complete(self) -> None:
         """Mark the task as complete."""
@@ -104,6 +122,20 @@ class Task:
             raise ValueError(f"Priority must be one of: {', '.join(valid_priorities)}")
 
         self.priority = new_priority
+        self.updated_at = datetime.now()
+
+    def update_due_date(self, new_due_date: datetime) -> None:
+        """Update the task due date after validation.
+
+        Args:
+            new_due_date: New due date for the task
+
+        Raises:
+            ValueError: If the due date is invalid
+        """
+        if new_due_date < datetime.now():
+            raise ValueError("Due date must be in the future")
+        self.due_date = new_due_date
         self.updated_at = datetime.now()
 
     def add_tag(self, tag: str) -> None:

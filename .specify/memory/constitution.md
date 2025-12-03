@@ -61,6 +61,8 @@ This is the foundational phase of the Evolution of Todo project, implementing a 
 │   ├── task-tags-categories.md
 │   ├── task-search-filter.md
 │   ├── task-sorting.md
+│   ├── task-recurring.md
+│   ├── task-due-dates-reminders.md
 │   └── ...
 ├── architecture/      # Architecture decision records
 │   ├── domain-model.md
@@ -181,7 +183,9 @@ evolution-of-todo-phase-1/
 │   │   ├── task-priorities.md
 │   │   ├── task-tags-categories.md
 │   │   ├── task-search-filter.md
-│   │   └── task-sorting.md
+│   │   ├── task-sorting.md
+│   │   ├── task-recurring.md
+│   │   └── task-due-dates-reminders.md
 │   ├── architecture/
 │   └── api/
 ├── src/                     # Source code
@@ -189,11 +193,13 @@ evolution-of-todo-phase-1/
 │   ├── main.py             # Application entry point
 │   ├── domain/             # Domain models
 │   ├── services/           # Business logic
+│   ├── scheduler/          # Recurring tasks & reminders
 │   └── ui/                 # Console UI
 └── tests/                   # Test files
     ├── __init__.py
     ├── test_domain/
     ├── test_services/
+    ├── test_scheduler/
     └── test_integration/
 ```
 
@@ -230,13 +236,31 @@ evolution-of-todo-phase-1/
    - Ascending/descending order
    - Preserve sort preferences within session
 
-### Advanced Features (Future Consideration)
+### Advanced Features (Intelligent Automation)
+
+6. **Recurring Tasks** (`/specs/features/task-recurring.md`)
+   - Define recurrence patterns: daily, weekly, monthly, yearly, custom
+   - Auto-reschedule on completion (e.g., "Weekly team meeting")
+   - Recurrence rules: every X days/weeks, specific days of week
+   - Skip/postpone individual occurrences
+   - End conditions: never, after X occurrences, by date
+
+7. **Due Dates & Time Reminders** (`/specs/features/task-due-dates-reminders.md`)
+   - Set precise due dates with time components
+   - Configure reminder notifications before due time
+   - Multiple reminder options: 15min, 1hr, 1day, 1week before
+   - Console-based notification system (Phase I constraint)
+   - Overdue task detection and highlighting
+   - Snooze reminder functionality
+
+### Future Enhancements (Post Phase I)
 
 - Subtasks and task dependencies
-- Recurring tasks
 - Task history/audit log
 - Bulk operations
-- Export/import (for future phases)
+- Export/import capabilities
+- Browser/system notifications (Phase II+)
+- Email reminders (Phase II+)
 
 ---
 
@@ -307,6 +331,13 @@ evolution-of-todo-phase-1/
 - **No GUI:** No web interface, desktop GUI, or TUI libraries
 - **Simple Navigation:** Menu-based interaction
 
+### Notifications & Reminders
+
+- **Console-Based Only:** Reminders displayed in console interface
+- **No Browser Notifications:** Browser/system notifications reserved for Phase II+
+- **No External Services:** No email, SMS, or push notification services
+- **Session-Based:** Reminders only active while application is running
+
 ### Scope Limitations
 
 - **Single User:** No authentication or multi-user support
@@ -331,11 +362,13 @@ The central entity in Phase I with the following properties:
 
 **Optional Properties:**
 - `description`: Detailed description (string, max 1000 chars)
-- `due_date`: Due date (datetime, optional)
+- `due_date`: Due date with time (datetime, optional)
 - `priority`: Priority level (enum: high, medium, low)
 - `tags`: List of tags/categories (list of strings)
 - `completed_at`: Timestamp when marked complete (optional)
 - `updated_at`: Timestamp of last update
+- `recurrence_rule`: Recurrence pattern (optional)
+- `reminder_settings`: Reminder configuration (optional)
 
 ### Priority Levels
 
@@ -348,6 +381,30 @@ The central entity in Phase I with the following properties:
 - **PENDING:** Not yet started (default)
 - **IN_PROGRESS:** Currently being worked on
 - **COMPLETED:** Task finished
+
+### Recurrence Rules
+
+**Frequency Types:**
+- `DAILY`: Every day or every X days
+- `WEEKLY`: Specific days of the week
+- `MONTHLY`: Specific day of month or relative (e.g., first Monday)
+- `YEARLY`: Annual recurrence
+- `CUSTOM`: Custom interval in days
+
+**Recurrence Properties:**
+- `frequency`: Type of recurrence
+- `interval`: Number of frequency units (e.g., every 2 weeks)
+- `days_of_week`: For weekly recurrence (Mon, Tue, etc.)
+- `end_condition`: Never, after X occurrences, or by date
+
+### Reminder Settings
+
+**Reminder Properties:**
+- `enabled`: Boolean flag
+- `reminder_times`: List of time offsets before due date
+  - Examples: 15 minutes, 1 hour, 1 day, 1 week
+- `last_triggered`: Timestamp of last reminder
+- `snooze_until`: Temporary postponement timestamp
 
 ---
 
@@ -378,17 +435,21 @@ Phase I is considered complete when:
 1. ✅ All feature specs in `/specs/features/` are implemented
 2. ✅ Core features: Task CRUD operations working
 3. ✅ Intermediate features: Priorities, tags, search/filter, sorting working
-4. ✅ All tests pass with >80% coverage
-5. ✅ Console application runs without errors
-6. ✅ Code passes all linting and formatting checks
-7. ✅ Documentation is complete and accurate
-8. ✅ User can manage tasks efficiently with search, filter, and sort capabilities
-9. ✅ Ready for transition to Phase II (persistence layer)
+4. ✅ Advanced features: Recurring tasks and reminder system working
+5. ✅ All tests pass with >80% coverage
+6. ✅ Console application runs without errors
+7. ✅ Code passes all linting and formatting checks
+8. ✅ Documentation is complete and accurate
+9. ✅ User can manage tasks efficiently with full feature set
+10. ✅ Recurring tasks auto-reschedule correctly
+11. ✅ Reminder system alerts users appropriately (console-based)
+12. ✅ Ready for transition to Phase II (persistence layer)
 
 ---
 
 ## Version History
 
+- **v1.2.0** - Added advanced features: recurring tasks, due dates & time reminders
 - **v1.1.0** - Added intermediate features: priorities, tags/categories, search/filter, sorting
 - **v1.0.0** - Initial constitution for Phase I (In-Memory Python Console App)
 
