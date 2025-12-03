@@ -91,10 +91,12 @@ The application provides a comprehensive menu-based interface:
 
 ### Adding Tasks with New Features
 When creating tasks, you can now specify:
-- **Priority**: High, Medium, or Low priority levels
-- **Tags**: Multiple tags for categorization (e.g., work, personal, urgent)
-- **Due Dates**: Specific date/time deadlines with reminder options
-- **Recurrence**: Set recurring patterns for routine tasks
+- **Priority**: High, Medium, or Low priority levels with color-coded indicators
+- **Tags**: Multiple custom tags for categorization (e.g., work, personal, urgent)
+- **Due Dates**: Specific date/time deadlines with automatic overdue notifications
+- **Recurrence**: Auto-rescheduling repeating tasks (daily, weekly, monthly, yearly)
+
+The task creation workflow guides you through each option step-by-step, and completed recurring tasks automatically generate their next occurrence. All features integrate with the search and filter system for easy task management.
 
 ### Search & Filter Menu
 ```
