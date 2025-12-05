@@ -1,32 +1,69 @@
 # 📝 EVOLUTION-OF-TODO
 
-A sophisticated Python console application for intelligent task management with priorities, tags, due dates, recurring tasks, and advanced search capabilities.
+A sophisticated task management application evolving from console to full-stack web application with intelligent features.
 
 [![Python](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![TypeScript](https://img.shields.io/badge/typescript-5.x-blue.svg)](https://www.typescriptlang.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/iamKhan79690/EVOLUTION-OF-TODO/actions)
 
-## 🌟 Features
+## 🚀 Project Evolution
 
-**Core Task Management:**
-- Complete CRUD operations with priority levels (High/Medium/Low)
-- Custom tagging system and due date tracking
-- Recurring tasks with flexible scheduling patterns
+### Phase I: Console Application ✅
+Advanced Python console application with intelligent task management
+- **Features**: Priorities, tags, due dates, recurring tasks, search, reminders
+- **Architecture**: Domain-driven design with clean separation of concerns
+- **Testing**: 80%+ test coverage
 
-**Search & Organization:**
-- Keyword search with filtering by priority, tags, and status
-- Multi-option sorting (priority, title, due date)
-- Console notification system for reminders
+### Phase II: Full-Stack Web Application ✅ (Development Setup Complete)
+Modern web application with real-time collaboration and enhanced features
+- **Frontend**: Next.js 16+ with TypeScript and Tailwind CSS
+- **Backend**: FastAPI with SQLModel and Neon PostgreSQL
+- **Authentication**: Better Auth with JWT integration
+- **Status**: Development environment ready - both servers running
 
-**Architecture:**
-- Domain-driven design with clean separation of concerns
-- In-memory storage (Phase I) with 80%+ test coverage
-- Extensible, maintainable codebase
+## 🌟 Phase II Features
 
-## 🛠️ Installation
+**Modern Web Interface:**
+- Responsive design with mobile support
+- Real-time updates and notifications
+- Advanced filtering and search capabilities
 
-**Requirements:** Python 3.13+, UV package manager (recommended)
+**Enhanced Task Management:**
+- All Phase I features migrated to web
+- User authentication and data persistence
+- Collaborative task sharing (future)
 
+**Developer Experience:**
+- Hot reloading for rapid development
+- Comprehensive testing suite
+- Modern development tooling
+
+## 🛠️ Phase II Setup
+
+**Requirements:**
+- Node.js 18.0+
+- Python 3.11+
+- Git
+
+**Quick Setup (15 minutes):**
+```bash
+# Clone and setup
+git clone <repository-url>
+cd "The Evolution of Todo"
+npm run setup
+
+# Start development servers
+npm run dev
+```
+
+**Current Development Environment:**
+- **Frontend Server**: http://localhost:3000 ✅
+- **Backend API**: http://localhost:8000 ✅
+- **API Documentation**: http://localhost:8000/docs ✅
+- **Health Check**: http://localhost:8000/api/v1/health ✅
+
+**Individual Setup:**
 ```bash
 # Clone and setup
 git clone https://github.com/iamKhan79690/EVOLUTION-OF-TODO.git
@@ -39,7 +76,58 @@ uv sync && uv run src/main.py
 pip install -e . && python src/main.py
 ```
 
-## 🚀 Usage
+## 🌐 Phase II Development Environment
+
+### Quick Start (15 minutes)
+```bash
+# 1. Clone repository
+git clone https://github.com/iamKhan79690/EVOLUTION-OF-TODO.git
+cd "The Evolution of Todo"
+
+# 2. Run setup script (Unix/Linux/macOS)
+./scripts/setup.sh
+
+# OR (Windows)
+scripts\setup.bat
+
+# 3. Start development servers
+npm run dev
+```
+
+### Manual Setup (if preferred)
+```bash
+# 1. Setup Frontend
+cd frontend
+npm install
+npm run dev
+
+# 2. Setup Backend (in new terminal)
+cd backend
+python -m venv venv
+# Windows: venv\Scripts\activate
+# macOS/Linux: source venv/bin/activate
+pip install -r requirements.txt
+python main.py
+```
+
+### Development Access Points
+- **Frontend**: http://localhost:3000 (Next.js development server)
+- **Backend API**: http://localhost:8000 (FastAPI development server)
+- **API Documentation**: http://localhost:8000/docs (Interactive OpenAPI docs)
+- **Health Check**: http://localhost:8000/api/v1/health (Service status monitoring)
+
+### Environment Variables
+Copy `.env.local.example` to `.env.local` and configure:
+```bash
+# Database
+DATABASE_URL=postgresql://user:pass@ep-xyz.us-east-2.aws.neon.tech/dbname
+
+# Authentication (generate secure secrets)
+BETTER_AUTH_SECRET=your-32-character-secret-key
+JWT_SECRET=your-jwt-secret-key
+```
+
+## 🚀 Phase I Usage
 
 The app provides an intuitive menu-driven interface for managing tasks with advanced features:
 
