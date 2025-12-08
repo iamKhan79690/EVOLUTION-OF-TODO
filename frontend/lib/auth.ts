@@ -3,7 +3,6 @@
  */
 
 import { createAuthClient } from 'better-auth/react';
-import type { AuthClient } from 'better-auth/react';
 
 // Mock authentication configuration for MVP
 const mockAuthConfig = {
@@ -12,7 +11,7 @@ const mockAuthConfig = {
 };
 
 // Create mock auth client for MVP
-export const betterAuthClient: AuthClient = createAuthClient(mockAuthConfig);
+export const betterAuthClient = createAuthClient(mockAuthConfig);
 
 // Export commonly used auth methods for easier access
 export const {
