@@ -10,7 +10,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -31,6 +30,8 @@ htmlcov/
 uv.lock
 
 # Virtual Environment
+.env
+.env.example
 venv/
 env/
 ENV/
@@ -60,7 +61,6 @@ out/
 .parcel-cache/
 
 # Environment variables
-.env
 .env.local
 .env.development.local
 .env.test.local
