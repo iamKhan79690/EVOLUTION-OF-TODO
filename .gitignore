@@ -30,6 +30,8 @@ htmlcov/
 uv.lock
 
 # Virtual Environment
+.env
+.env.example
 venv/
 env/
 ENV/
